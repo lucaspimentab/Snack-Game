@@ -6,6 +6,7 @@ class Snake(Entity):
     def __init__(self):
         self.corpo = [(300, 300)]
         self.direcao = K_RIGHT
+        self.crescer_na_proxima = False  # Marca para crescer no próximo movimento
 
     def mover(self):
         x, y = self.corpo[0]
@@ -18,14 +19,20 @@ class Snake(Entity):
         elif self.direcao == K_DOWN:
             y += 10
 
-        self.corpo = [(x, y)] + self.corpo[:-1]
+        nova_cabeca = (x, y)
+
+        if self.crescer_na_proxima:
+            self.corpo = [nova_cabeca] + self.corpo
+            self.crescer_na_proxima = False
+        else:
+            self.corpo = [nova_cabeca] + self.corpo[:-1]
 
     def mudar_direcao(self, tecla):
         if tecla in [K_UP, K_DOWN, K_LEFT, K_RIGHT]:
             self.direcao = tecla
 
     def crescer(self):
-        self.corpo.append(self.corpo[-1])
+        self.crescer_na_proxima = True
 
     def desenhar(self, tela):
         for parte in self.corpo:
