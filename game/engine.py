@@ -30,6 +30,7 @@ class Game:
             score (int): Pontuação atual do jogador.
             snake (Snake): Instância da cobra.
             apple (Apple): Instância da maçã.
+            pausado (bool): Estado do jogo.
         """
         pygame.init()
 
@@ -40,6 +41,7 @@ class Game:
         self.fonte = pygame.font.SysFont(None, 36)
         self.jogador = sys.argv[1] if len(sys.argv) > 1 else "Jogador"
         self.score = 0
+        self.pausado = False
 
         logger.info(f"Jogo iniciado para o jogador: {repr(self.jogador)}")
         self.reset()
@@ -129,14 +131,32 @@ class Game:
                     logger.info("Jogo encerrado pelo botao de fechar")
                     pygame.quit()
                     return
-                
+
                 if evento.type == pygame.KEYDOWN:
                     if evento.key == pygame.K_ESCAPE:
                         logger.info("Jogo encerrado com ESC")
                         pygame.quit()
                         return
+
+                    if evento.key == pygame.K_SPACE:
+                        self.pausado = not self.pausado
+                        estado = "Pausado" if self.pausado else "Retomado"
+                        logger.info(f"Jogo {estado.lower()}")
+
                     self.snake.mudar_direcao(evento.key)
                     logger.debug(f"Direcao alterada: {evento.key}")
+
+            if self.pausado:
+                self.tela.fill(Cor.rgb(Cor.VERDE_CLARO))
+                self.snake.desenhar(self.tela)
+                self.apple.desenhar(self.tela)
+                self.desenhar_score()
+                self.desenhar_sair()
+
+                texto = self.fonte.render("PAUSADO", True, Cor.rgb(Cor.CINZA_TEXTO))
+                self.tela.blit(texto, (250, 270))
+                pygame.display.update()
+                continue
 
             self.snake.mover()
 
@@ -157,6 +177,7 @@ class Game:
             self.desenhar_score()
             self.desenhar_sair()
             pygame.display.update()
+
 
 if __name__ == "__main__":
     try:
