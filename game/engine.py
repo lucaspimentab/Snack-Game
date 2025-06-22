@@ -3,7 +3,7 @@ import sys
 import json
 from models.snake import Snake
 from models.apple import Apple
-from utils.config import DB_PATH
+from utils.config import DB_PATH, SOUND_PATH
 from models.usuario import Usuario
 from utils.logger import logger
 from interface.estilos import Cores as Cor
@@ -33,8 +33,14 @@ class Game:
             pausado (bool): Estado do jogo.
         """
         pygame.init()
+        
+        # Configurações da trilha sonora
+        pygame.mixer.init()
+        pygame.mixer.music.load(str(SOUND_PATH))
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
 
-        self.largura, self.altura = 660, 600
+        self.largura, self.altura = 520, 450
         self.tela = pygame.display.set_mode((self.largura, self.altura))
         pygame.display.set_caption("Snake Game - Executável")
         self.clock = pygame.time.Clock()
@@ -58,18 +64,37 @@ class Game:
 
     def mostrar_game_over(self):
         """
-        Exibe a mensagem de fim de jogo, salva o score e pausa por 2 segundos.
+        Exibe a mensagem de fim de jogo, salva o score e aguarda o jogador pressionar ENTER.
         """
-        logger.info(f"Game over! {self.jogador} fez {self.score} ponto(s)")
+        logger.info(f"Game over! Aguardando restart...")
         self.salvar_score()
-        texto = self.fonte.render(
-            f"Game Over, {self.jogador}!", 
-            True, 
-            Cor.rgb(Cor.CINZA_TEXTO)
-        )
-        self.tela.blit(texto, (180, 250))
+
+        self.tela.fill(Cor.rgb(Cor.VERDE_CLARO))
+
+        texto1 = self.fonte.render(f"Game Over, {self.jogador}!", True, Cor.rgb(Cor.CINZA_TEXTO))
+        rect1 = texto1.get_rect(center=(self.largura // 2, self.altura // 2 - 30))
+        self.tela.blit(texto1, rect1)
+
+        texto2 = self.fonte.render("Pressione ENTER para jogar novamente", True, Cor.rgb(Cor.CINZA_TEXTO))
+        rect2 = texto2.get_rect(center=(self.largura // 2, self.altura // 2 + 30))
+        self.tela.blit(texto2, rect2)
+
         pygame.display.flip()
-        pygame.time.wait(2000)
+
+        # Espera o jogador apertar ENTER ou ESC
+        esperando = True
+        while esperando:
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_RETURN:
+                        esperando = False
+                    if evento.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                        sys.exit()
+
 
     def salvar_score(self):
         """
@@ -117,11 +142,13 @@ class Game:
             True, 
             Cor.rgb(Cor.CINZA_TEXTO)
         )
-        self.tela.blit(texto, (450, 10))
+        pos_texto = texto.get_rect(topright = (self.largura - 10, 10))
+        self.tela.blit(texto, pos_texto)
 
     def run(self):
         """
-        Inicia o loop principal do jogo, tratando eventos, atualizando estados e desenhando a tela.
+        Inicia o loop principal do jogo, tratando eventos, 
+        atualizando estados e desenhando a tela.
         """
         logger.info("Loop principal iniciado")
         while True:
@@ -143,6 +170,12 @@ class Game:
                         estado = "Pausado" if self.pausado else "Retomado"
                         logger.info(f"Jogo {estado.lower()}")
 
+                        # Pausa/Despausa a música
+                        if self.pausado:
+                            pygame.mixer.music.pause()
+                        else:
+                            pygame.mixer.music.unpause()
+
                     self.snake.mudar_direcao(evento.key)
                     logger.debug(f"Direcao alterada: {evento.key}")
 
@@ -154,7 +187,10 @@ class Game:
                 self.desenhar_sair()
 
                 texto = self.fonte.render("PAUSADO", True, Cor.rgb(Cor.CINZA_TEXTO))
-                self.tela.blit(texto, (250, 270))
+                pos_texto = texto.get_rect(
+                    center = (self.largura // 2, self.altura // 2)
+                )
+                self.tela.blit(texto, pos_texto)
                 pygame.display.update()
                 continue
 
@@ -167,7 +203,7 @@ class Game:
                 logger.info(f"{self.jogador} pegou uma maca! Score: {self.score}")
 
             if self.snake.bateu_na_parede(self.largura, self.altura) or self.snake.colidiu_consigo():
-                logger.info("Colisao detectada. Reiniciando jogo...")
+                logger.info("Colisao detectada!")
                 self.mostrar_game_over()
                 self.reset()
 
@@ -177,7 +213,6 @@ class Game:
             self.desenhar_score()
             self.desenhar_sair()
             pygame.display.update()
-
 
 if __name__ == "__main__":
     try:

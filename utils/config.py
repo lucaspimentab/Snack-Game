@@ -7,5 +7,6 @@ BASE_DIR = Path(__file__).resolve()
 while BASE_DIR.name != "Snack-Game" and BASE_DIR != BASE_DIR.parent:
     BASE_DIR = BASE_DIR.parent
 
-# Agora usa a raiz real
+# Caminhos úteis
 DB_PATH = BASE_DIR / "database" / "usuarios.json"
+SOUND_PATH = BASE_DIR / "assets" / "soundtrack.mp3"
