@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve()
 
 # Sobe diretórios até encontrar a raiz do projeto
-while BASE_DIR.name != "snake-game" and BASE_DIR != BASE_DIR.parent:
+while BASE_DIR.name != "Snack-Game" and BASE_DIR != BASE_DIR.parent:
     BASE_DIR = BASE_DIR.parent
 
 # Agora usa a raiz real
