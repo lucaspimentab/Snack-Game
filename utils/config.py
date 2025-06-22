@@ -9,4 +9,5 @@ while BASE_DIR.name != "Snack-Game" and BASE_DIR != BASE_DIR.parent:
 
 # Caminhos úteis
 DB_PATH = BASE_DIR / "database" / "usuarios.json"
-SOUND_PATH = BASE_DIR / "assets" / "soundtrack.mp3"
+SOUNDTRACK_PATH = BASE_DIR / "assets" / "soundtrack.mp3"
+SOUNDEFFECT_PATH = BASE_DIR / "assets" / "beep.mp3"

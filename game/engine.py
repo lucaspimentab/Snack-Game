@@ -3,7 +3,7 @@ import sys
 import json
 from models.snake import Snake
 from models.apple import Apple
-from utils.config import DB_PATH, SOUND_PATH
+from utils.config import DB_PATH, SOUNDTRACK_PATH, SOUNDEFFECT_PATH
 from models.usuario import Usuario
 from utils.logger import logger
 from interface.estilos import Cores as Cor
@@ -36,9 +36,10 @@ class Game:
         
         # Configurações da trilha sonora
         pygame.mixer.init()
-        pygame.mixer.music.load(str(SOUND_PATH))
+        pygame.mixer.music.load(str(SOUNDTRACK_PATH))
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
+        self.som_ao_comer = pygame.mixer.Sound(str(SOUNDEFFECT_PATH))
 
         self.largura, self.altura = 520, 450
         self.tela = pygame.display.set_mode((self.largura, self.altura))
@@ -71,7 +72,7 @@ class Game:
 
         self.tela.fill(Cor.rgb(Cor.VERDE_CLARO))
 
-        texto1 = self.fonte.render(f"Game Over, {self.jogador}!", True, Cor.rgb(Cor.CINZA_TEXTO))
+        texto1 = self.fonte.render(f"Game Over, {self.jogador}!", True, Cor.rgb(Cor.VERDE_ESCURO))
         rect1 = texto1.get_rect(center=(self.largura // 2, self.altura // 2 - 30))
         self.tela.blit(texto1, rect1)
 
@@ -94,7 +95,6 @@ class Game:
                     if evento.key == pygame.K_ESCAPE:
                         pygame.quit()
                         sys.exit()
-
 
     def salvar_score(self):
         """
@@ -197,6 +197,7 @@ class Game:
             self.snake.mover()
 
             if self.snake.colidiu_com(self.apple.get_pos()):
+                self.som_ao_comer.play()
                 self.snake.crescer()
                 self.apple.gerar_nova_posicao(self.snake.corpo)
                 self.score += 1
