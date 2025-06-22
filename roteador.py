@@ -1,56 +1,78 @@
 import flet as ft
-from views.tela_login_ou_cadastro import TelaLoginOuCadastro
-from views.tela_login import TelaLogin
-from views.tela_cadastro import TelaCadastro
-from views.tela_menu_usuario import TelaMenuUsuario
-from views.tela_ranking import TelaRanking
-from game.game_runner import iniciar_jogo
-from controllers.auth_controller import AuthController
+from utils.logger import logger
+from interface.telas.tela_cadastro import TelaCadastro
+from interface.telas.tela_login import TelaLogin
+from interface.telas.tela_menu import TelaMenuUsuario
+from interface.telas.tela_ranking import TelaRanking
+from services.login import AuthService
+from game.game_runner import GameRunner as Game
 
-def navegar(page: ft.Page, route: str):
-    page.views.clear()
+class Roteador:
+    """
+    Gerencia a navegação entre as diferentes telas do aplicativo.
+    """
 
-    if route == "/":
-        tela = TelaLoginOuCadastro(
-            on_login=lambda: page.go("/login"),
-            on_cadastro=lambda: page.go("/cadastro")
-        )
-        page.views.append(ft.View("/", controls=[tela.view]))
+    def __init__(self, page: ft.Page):
+        """
+        Inicializa o roteador com a página principal do app.
 
-    elif route == "/login":
-        tela = TelaLogin(
-            on_login_sucesso=lambda user_id: page.go(f"/menu?user={user_id}"),
-            on_voltar=lambda: page.go("/")
-        )
-        page.views.append(ft.View("/login", controls=[tela.view]))
+        Args:
+            page (ft.Page): A instância da página Flet usada para navegação.
+        """
+        self.page = page
 
-    elif route == "/cadastro":
-        tela = TelaCadastro(
-            on_cadastro_sucesso=lambda: page.go("/login"),
-            on_voltar=lambda: page.go("/")
-        )
-        page.views.append(ft.View("/cadastro", controls=[tela.view]))
+    def navegar(self, route: str, *args):
+        """
+        Navega para a rota especificada, carregando a tela correspondente.
 
-    elif route.startswith("/menu"):
-        from urllib.parse import urlparse, parse_qs
-        query = parse_qs(urlparse(route).query)
-        user_id = query.get("user", [""])[0]
-        cliente = AuthController.sessao_ativa.get(user_id)
-        if not cliente:
-            page.go("/login")
-            return
-        tela = TelaMenuUsuario(
-            cliente=cliente,
-            on_jogar=lambda: iniciar_jogo(cliente["nome"]),
-            on_ver_ranking=lambda: page.go("/ranking"),
-            on_logout=lambda: page.go("/")
-        )
-        page.views.append(ft.View("/menu", controls=[tela.view]))
+        Args:
+            route (str): Caminho da rota (por exemplo, "/", "/cadastro").
+            *args: Argumentos adicionais opcionais para rotas futuras.
+        """
+        logger.info(f"Navegando para a rota: {route}")
+        self.page.views.clear()
 
-    elif route == "/ranking":
-        tela = TelaRanking(
-            on_voltar=lambda: page.go("/")
-        )
-        page.views.append(ft.View("/ranking", controls=[tela.view]))
+        if route == "/":
+            tela = TelaLogin(
+                navegar_para_menu=lambda: self.page.go("/menu"),
+                navegar_para_cadastro=lambda: self.page.go("/cadastro")
+            )
+            self.page.views.append(ft.View("/", controls=[tela.view]))
 
-    page.update()
+        elif route == "/cadastro":
+            tela = TelaCadastro(
+                navegar_para_login=lambda: self.page.go("/")
+            )
+            self.page.views.append(ft.View("/cadastro", controls=[tela.view]))
+
+        elif route == "/menu":
+            usuario = AuthService.get_usuario_logado()
+            if not usuario:
+                logger.warning("Acesso ao menu sem login. Redirecionando para login.")
+                self.page.go("/")
+                return
+
+            tela = TelaMenuUsuario(
+                usuario_nome=usuario.nome,
+                iniciar_jogo=lambda: Game(usuario).iniciar_jogo(),
+                navegar_para_ranking=lambda: self.page.go("/ranking"),
+                logout=self._fazer_logout
+            )
+            self.page.views.append(ft.View("/menu", controls=[tela.view]))
+
+        elif route == "/ranking":
+            if not AuthService.esta_logado():
+                logger.warning("Acesso ao ranking sem login. Redirecionando para login.")
+                self.page.go("/")
+                return
+            tela = TelaRanking(voltar_para_menu=lambda: self.page.go("/menu"))
+            self.page.views.append(ft.View("/ranking", controls=[tela.view]))
+
+        self.page.update()
+
+    def _fazer_logout(self):
+        """
+        Realiza logout do usuário e redireciona para a tela de login.
+        """
+        AuthService.logout()
+        self.page.go("/")
