@@ -1,5 +1,10 @@
 {
-  "Lucas Pimenta Braga": "123",
-  "LucasPb": "123",
-  "victorgdss": "mangaema\u00e7a123"
+  "Jogador": {
+    "senha": "1234",
+    "score": 6
+  },
+  "mateus": {
+    "senha": "1234",
+    "score": 7
+  }
 }
