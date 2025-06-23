@@ -1,9 +1,16 @@
 import pygame
+import random
 import sys
 import json
 from models.snake import Snake
 from models.apple import Apple
-from utils.config import DB_PATH, SOUNDTRACK_PATH, SOUNDEFFECT_PATH
+from utils.config import (
+    DB_PATH, 
+    SOUNDTRACK_PATH, 
+    BEEP_SOUND_PATH, 
+    SPEED_SOUND_PATH,
+    IMPACT_SOUND_PATH
+)
 from models.usuario import Usuario
 from utils.logger import logger
 from interface.estilos import Cores as Cor
@@ -39,7 +46,11 @@ class Game:
         pygame.mixer.music.load(str(SOUNDTRACK_PATH))
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
-        self.som_ao_comer = pygame.mixer.Sound(str(SOUNDEFFECT_PATH))
+
+        # Carrega os efeitos sonoros
+        self.som_comer_normal = pygame.mixer.Sound(str(BEEP_SOUND_PATH))
+        self.som_velocidade = pygame.mixer.Sound(str(SPEED_SOUND_PATH))
+        self.som_impacto = pygame.mixer.Sound(str(IMPACT_SOUND_PATH))
 
         self.largura, self.altura = 520, 450
         self.tela = pygame.display.set_mode((self.largura, self.altura))
@@ -151,8 +162,11 @@ class Game:
         atualizando estados e desenhando a tela.
         """
         logger.info("Loop principal iniciado")
+        self.velocidade = 10
+        self.tempo_velocidade = 0
+
         while True:
-            self.clock.tick(10)
+            self.clock.tick(self.velocidade)
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     logger.info("Jogo encerrado pelo botao de fechar")
@@ -195,15 +209,35 @@ class Game:
                 continue
 
             self.snake.mover()
+            # Se efeito de velocidade estiver ativo e já passaram 5 segundos,
+            # restaura a velocidade normal
+            if self.velocidade > 10 and pygame.time.get_ticks() - self.tempo_velocidade > 5000:
+                self.velocidade = 10
 
             if self.snake.colidiu_com(self.apple.get_pos()):
-                self.som_ao_comer.play()
+                
+                # Maçã azul de velocidade
+                if self.apple.tipo == "velocidade":
+                    self.som_velocidade.play()
+                    self.velocidade = 20
+                    self.tempo_velocidade = pygame.time.get_ticks()
+                
+                # Maçã normal
+                else:
+                    self.som_comer_normal.play()
+
                 self.snake.crescer()
-                self.apple.gerar_nova_posicao(self.snake.corpo)
                 self.score += 1
-                logger.info(f"{self.jogador} pegou uma maca! Score: {self.score}")
+
+                # 20% de chance de gerar maçã especial
+                tipo = "velocidade" if random.random() < 0.2 else "normal"
+                self.apple = Apple(self.largura, self.altura, tipo)
+                self.apple.gerar_nova_posicao(self.snake.corpo)
+
+                logger.info(f"{self.jogador} pegou uma maca '{tipo}'! Score: {self.score}")
 
             if self.snake.bateu_na_parede(self.largura, self.altura) or self.snake.colidiu_consigo():
+                self.som_impacto.play()
                 logger.info("Colisao detectada!")
                 self.mostrar_game_over()
                 self.reset()
