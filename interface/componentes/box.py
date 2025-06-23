@@ -1,7 +1,7 @@
 import flet as ft
 from interface.estilos import Cores as Cor
 
-def CaixaCentral(conteudo):
+def CaixaCentral(conteudo: ft.Control) -> ft.Container:
     """
     Cria um container centralizado com fundo colorido, bordas arredondadas e sombra.
 
@@ -9,7 +9,7 @@ def CaixaCentral(conteudo):
         conteudo (ft.Control): Componente Flet a ser exibido dentro da caixa.
 
     Returns:
-        ft.Container: Um container estilizado com preenchimento, sombra e bordas arredondadas.
+        ft.Container: Container estilizado com preenchimento, sombra e bordas arredondadas.
     """
     return ft.Container(
         content       = conteudo,

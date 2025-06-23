@@ -5,19 +5,19 @@ from interface.estilos import Cores as Cor
 
 class Snake:
     """
-    Representa a cobra no jogo da cobrinha.
+    Representa a cobra no jogo.
 
-    Controla a movimentação, crescimento, colisões e renderização da cobra na tela.
+    Responsável por movimentar, crescer, detectar colisões e se desenhar na tela.
     """
 
     def __init__(self):
         """
-        Inicializa a cobra com uma posição inicial e direção à direita.
+        Inicializa a cobra com uma posição inicial e direção para a direita.
 
-        Attributes:
-            _corpo (list): Lista de tuplas representando as posições dos segmentos da cobra.
-            _direcao (int): Direção atual de movimento (valores de pygame.locals, como K_RIGHT).
-            _crescer_na_proxima (bool): Marca se a cobra deve crescer no próximo movimento.
+        Atributos:
+            _corpo (list): Lista de tuplas representando os segmentos da cobra.
+            _direcao (int): Direção atual de movimento (constante do pygame, ex: K_RIGHT).
+            _crescer_na_proxima (bool): Indica se a cobra deve crescer no próximo movimento.
         """
         self._corpo = [(300, 300)]
         self._direcao = K_RIGHT
@@ -27,18 +27,18 @@ class Snake:
     @property
     def corpo(self):
         """
-        Retorna a lista de segmentos que compõem o corpo da cobra.
+        Retorna os segmentos atuais da cobra.
 
         Returns:
-            list: Lista de tuplas (x, y) representando cada segmento da cobra.
+            list: Lista de tuplas (x, y) com as posições dos segmentos.
         """
         return self._corpo
 
     def mover(self):
         """
-        Move a cobra na direção atual.
+        Move a cobra de acordo com a direção atual.
 
-        Se a cobra estiver marcada para crescer, ela aumenta de tamanho; caso contrário, apenas se move.
+        Se estiver marcada para crescer, ela aumenta de tamanho ao mover.
         """
         x, y = self._corpo[0]
         if self._direcao == K_RIGHT:
@@ -61,7 +61,7 @@ class Snake:
 
     def mudar_direcao(self, tecla):
         """
-        Altera a direção da cobra, evitando movimentos de 180 graus.
+        Altera a direção da cobra, ignorando comandos que fariam ela voltar para trás.
 
         Args:
             tecla (int): Código da tecla pressionada (ex: K_UP, K_LEFT).
@@ -87,10 +87,10 @@ class Snake:
 
     def desenhar(self, tela):
         """
-        Desenha a cobra na tela.
+        Desenha todos os segmentos da cobra na tela.
 
         Args:
-            tela (pygame.Surface): Superfície onde a cobra será desenhada.
+            tela (pygame.Surface): Superfície onde os segmentos serão desenhados.
         """
         for parte in self._corpo:
             pygame.draw.rect(
@@ -102,20 +102,20 @@ class Snake:
         Retorna a posição da cabeça da cobra.
 
         Returns:
-            tuple: Coordenadas (x, y) da cabeça da cobra.
+            tuple: Coordenadas (x, y) da cabeça.
         """
         return self._corpo[0]
 
     def bateu_na_parede(self, largura, altura):
         """
-        Verifica se a cobra colidiu com as bordas da tela.
+        Verifica se a cobra colidiu com os limites da tela.
 
         Args:
             largura (int): Largura da área de jogo.
             altura (int): Altura da área de jogo.
 
         Returns:
-            bool: True se a cobra bateu na parede, False caso contrário.
+            bool: True se a cabeça estiver fora dos limites, False caso contrário.
         """
         x, y = self.corpo[0]
         colidiu = not (0 <= x < largura and 0 <= y < altura)
@@ -125,10 +125,10 @@ class Snake:
 
     def colidiu_consigo(self):
         """
-        Verifica se a cobra colidiu com seu próprio corpo.
+        Verifica se a cobra colidiu com o próprio corpo.
 
         Returns:
-            bool: True se colidiu com ela mesma, False caso contrário.
+            bool: True se a cabeça estiver sobre outro segmento, False caso contrário.
         """
         colidiu = self.corpo[0] in self.corpo[1:]
         if colidiu:
@@ -143,6 +143,6 @@ class Snake:
             pos (tuple): Posição (x, y) a ser verificada.
 
         Returns:
-            bool: True se a cabeça da cobra estiver na posição, False caso contrário.
+            bool: True se colidiu com a posição fornecida, False caso contrário.
         """
         return self._corpo[0] == pos

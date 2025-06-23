@@ -25,22 +25,35 @@ class TelaRanking:
         top_3 = self.ranking_service.top_3()
         usuario_score = self.ranking_service.get_score_usuario_logado()
 
-        # Título do ranking
-        titulo = ft.Text("TOP 3 jogadores", size = 24, weight = "bold", color = Cor.VERDE_ESCURO)
+        # Título da seção
+        titulo = ft.Text(
+            "TOP 3 jogadores", 
+            size   = 24, 
+            weight = "bold", 
+            color  = Cor.VERDE_ESCURO
+        )
 
-        # Lista com os top 3
-        lista_top = ft.Column([
-            ft.Text(f"{i + 1}. {nome}: {score} pts", size=18)
-            for i, (nome, score) in enumerate(top_3)
-        ], spacing = 5)
+        # Lista com os 3 melhores jogadores
+        lista_top = ft.Column(
+            [
+                ft.Text(f"{i + 1}. {nome}: {score} pts", size = 18)
+                for i, (nome, score) in enumerate(top_3)
+            ],
+            spacing = 5
+        )
 
-        # Score pessoal
-        score_pessoal = ft.Text(f"Seu score: {usuario_score} pts", size = 18, weight = "bold", color = Cor.CINZA_TEXTO)
+        # Score do usuário atual
+        score_pessoal = ft.Text(
+            f"Seu score: {usuario_score} pts",
+            size  = 18,
+            weight = "bold",
+            color  = Cor.CINZA_TEXTO
+        )
 
-        # Botão voltar
+        # Botão para voltar ao menu
         botao_voltar = BotaoTextoCinza("Voltar", lambda _: self.voltar_para_menu())
 
-        # Layout principal dentro da caixa
+        # Layout do conteúdo central
         conteudo = ft.Column(
             [
                 titulo,
@@ -57,13 +70,13 @@ class TelaRanking:
         )
         layout = CaixaCentral(conteudo)
 
-        # View completa
+        # Composição completa da view
         self.view = ft.Container(
             expand = True,
             content = ft.Column(
                 [
                     Cabecalho(),
-                    ft.Container(height=20),
+                    ft.Container(height = 20),
                     layout,
                 ],
                 alignment = "center",

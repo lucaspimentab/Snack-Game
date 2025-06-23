@@ -10,7 +10,7 @@ class GameRunner:
     Responsável por iniciar o jogo para um usuário específico.
     """
 
-    def __init__(self, usuario: Usuario):
+    def __init__(self, usuario: Usuario) -> None:
         """
         Inicializa o runner com um usuário.
 
@@ -21,7 +21,7 @@ class GameRunner:
         self.caminho_python = sys.executable
         self.caminho_engine = os.path.join("game", "engine.py")
 
-    def iniciar_jogo(self):
+    def iniciar_jogo(self) -> None:
         """
         Inicia o jogo para o usuário atual.
 

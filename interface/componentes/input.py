@@ -1,7 +1,7 @@
 import flet as ft
 from interface.estilos import Cores as Cor
 
-def InputTextoPersonalizado(label: str, password=False):
+def InputTextoPersonalizado(label: str, password = False):
     """
     Cria um campo de texto personalizado com estilos definidos.
 

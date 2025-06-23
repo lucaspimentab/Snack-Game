@@ -6,7 +6,7 @@ def Cabecalho() -> ft.Row:
     Cria o cabeçalho da interface com o ícone e o título do jogo.
 
     Returns:
-        ft.Row: Linha contendo a imagem do jogo e o texto "Snake Game", centralizados e estilizados.
+        ft.Row: Linha contendo a imagem do jogo e o nome do jogo, centralizados e estilizados.
     """
     return ft.Row(
         controls = [
@@ -17,7 +17,7 @@ def Cabecalho() -> ft.Row:
                 fit    = ft.ImageFit.CONTAIN,
             ),
             ft.Text(
-                "Snake Game",
+                "Snack Game",
                 size   = 28,
                 weight = "bold",
                 color  = Cor.VERDE_ESCURO,

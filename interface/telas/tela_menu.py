@@ -5,42 +5,50 @@ from interface.componentes.box import CaixaCentral
 from interface.componentes.botoes import BotaoVerde, BotaoTextoCinza
 from interface.componentes.cabecalho import Cabecalho
 from interface.estilos import Cores as Cor
+from typing import Callable
 
 class TelaMenuUsuario:
     """
     Tela de menu principal do usuário logado.
 
-    Apresenta opções como iniciar o jogo, ver ranking e fazer logout.
-    Exibe também o nome do usuário atualmente logado.
+    Apresenta opções como iniciar o jogo, ver o ranking e fazer logout.
+    Também exibe o nome do usuário atualmente autenticado.
     """
 
-    def __init__(self, usuario_nome: str, iniciar_jogo, navegar_para_ranking, logout):
+    def __init__(
+        self,
+        usuario_nome         : str,
+        iniciar_jogo         : Callable[[], None],
+        navegar_para_ranking : Callable[[], None],
+        logout               : Callable[[], None]
+    ):
         """
-        Inicializa a tela do menu do usuário.
+        Inicializa a tela do menu do usuário com os botões e layout.
 
         Args:
-            usuario_nome (str): Nome do usuário logado, para exibição.
+            usuario_nome (str): Nome do usuário logado, exibido na tela.
             iniciar_jogo (Callable): Função para iniciar o jogo.
-            navegar_para_ranking (Callable): Função para ir à tela de ranking.
-            logout (Callable): Função que realiza logout e volta para tela de login.
+            navegar_para_ranking (Callable): Função que navega para a tela de ranking.
+            logout (Callable): Função que realiza logout e volta para o login.
         """
         self.notificador = Notificador()
         self.iniciar_jogo = iniciar_jogo
         self.navegar_para_ranking = navegar_para_ranking
         self.logout = logout
 
-        # Botões
-        botao_jogar = BotaoVerde(
-            "Jogar", self.avisar_e_jogar
-        )
+        # Botões principais do menu
+        botao_jogar = BotaoVerde("Jogar", self.avisar_e_jogar)
         botao_ranking = BotaoTextoCinza("Ranking", lambda _: self.navegar_para_ranking())
         botao_logout = BotaoTextoCinza("Logout", lambda _: self.logout())
 
-        # Conteúdo da box do menu
+        # Layout interno da caixa central
         conteudo = ft.Column(
             [
                 ft.Text(
-                    f"Bem-vindo, {usuario_nome}!", size=20, weight="w500", color=Cor.CINZA_TEXTO
+                    f"Bem-vindo(a), {usuario_nome}!",
+                    size   = 20,
+                    weight = "w500",
+                    color  = Cor.CINZA_TEXTO
                 ),
                 ft.Container(height = 10),
                 botao_jogar,
@@ -55,7 +63,7 @@ class TelaMenuUsuario:
         )
         layout = CaixaCentral(conteudo)
 
-        # View completa
+        # Composição geral da view do menu
         self.view = ft.Container(
             content = ft.Column(
                 [
@@ -73,12 +81,12 @@ class TelaMenuUsuario:
             alignment = ft.alignment.center
         )
 
-    async def avisar_e_jogar(self, e):
+    async def avisar_e_jogar(self, e: ft.ControlEvent) -> None:
         """
-        Exibe aviso sobre abertura do jogo em nova janela e inicia o jogo após 1 segundo.
+        Exibe uma mensagem informando que o jogo será aberto em nova janela e inicia o jogo após 1.5s.
 
         Args:
-            e (ft.ControlEvent): Evento gerado pelo clique no botão.
+            e (ft.ControlEvent): Evento de clique no botão "Jogar".
         """
         self.notificador.info(e.page, "O jogo será aberto em uma nova janela.")
         await asyncio.sleep(1.5)

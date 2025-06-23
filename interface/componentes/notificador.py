@@ -8,13 +8,13 @@ class Notificador:
     Utiliza SnackBar do Flet para exibir mensagens de erro, sucesso ou informação.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Inicializa o componente com um SnackBar reutilizável.
         """
         self._snackbar = ft.SnackBar(
-            content = ft.Text(""),
-            duration = 3500,
+            content         = ft.Text(""),
+            duration        = 3500,
             show_close_icon = True,
         )
 
@@ -58,16 +58,16 @@ class Notificador:
             cor (str): Cor de fundo da notificação.
         """
         self._snackbar.content.value = mensagem
-        self._snackbar.bgcolor = cor
-        page.snack_bar = self._snackbar
-        self._snackbar.open = True
+        self._snackbar.bgcolor       = cor
+        page.snack_bar               = self._snackbar
+        self._snackbar.open          = True
         page.update()
 
-    def get_snackbar(self):
-            """
-            Retorna o objeto SnackBar para uso manual (em layouts, por exemplo).
+    def get_snackbar(self) -> ft.SnackBar:
+        """
+        Retorna o objeto SnackBar para uso manual (em layouts, por exemplo).
 
-            Returns:
-                ft.SnackBar: Instância de snackbar encapsulada.
-            """
-            return self._snackbar
+        Returns:
+            ft.SnackBar: Instância de snackbar encapsulada.
+        """
+        return self._snackbar

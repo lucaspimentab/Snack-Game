@@ -5,7 +5,7 @@ class Usuario:
     """
     Representa um usuário do jogo, contendo nome, senha e score.
 
-    Attributes:
+    Atributos:
         _nome (str): Nome do usuário.
         _senha (str): Senha protegida do usuário.
         _score (int): Pontuação máxima do usuário.
@@ -13,13 +13,14 @@ class Usuario:
 
     def __init__(self, nome: str, senha: str, score: int = 0):
         """
-        Inicializa um novo usuário.
+        Inicializa uma nova instância de usuário, validando os dados fornecidos.
 
         Args:
             nome (str): Nome do usuário.
             senha (str): Senha do usuário.
-            score (int, optional): Pontuação inicial. Default é 0.
+            score (int, opcional): Pontuação inicial. Padrão é 0.
         """
+        # Valida nome, senha e score antes de criar o usuário
         Validar.tudo(nome, senha, score)
         self._nome = nome
         self._senha = senha
@@ -46,8 +47,11 @@ class Usuario:
         Returns:
             bool: True se a senha estiver correta, False caso contrário.
         """
+        # Compara a senha digitada com a senha armazenada
         estado = self._senha == senha_digitada
-        logger.info(f"Verificacao de senha do usuario {self._nome}: {'sucesso' if estado else 'falha'}")
+        logger.info(
+            f"Verificacao de senha do usuario {self._nome}: {'sucesso' if estado else 'falha'}"
+        )
         return estado
 
     @property
@@ -63,13 +67,16 @@ class Usuario:
     @score.setter
     def score(self, novo_score: int):
         """
-        Atualiza o score do usuário, se o novo score for maior que o atual.
+        Atualiza o score do usuário se o novo score for maior que o atual.
 
         Args:
             novo_score (int): Novo score a ser considerado.
         """
+        # Score só é atualizado se o novo valor for maior
         if novo_score > self._score:
-            logger.info(f"Score atualizado para o usuario {self._nome}: {self._score} -> {novo_score}")
+            logger.info(
+                f"Score atualizado para o usuario {self._nome}: {self._score} -> {novo_score}"
+            )
             self._score = novo_score
 
     def to_dict(self) -> dict:
@@ -91,9 +98,9 @@ class Usuario:
 
         Args:
             nome (str): Nome do usuário.
-            dados (dict): Dicionário contendo 'senha' e opcionalmente 'score'.
+            dados (dict): Dicionário contendo 'senha' e, opcionalmente, 'score'.
 
         Returns:
-            Usuario: Instância da classe Usuario.
+            Usuario: Nova instância da classe Usuario.
         """
         return cls(nome, dados["senha"], dados.get("score", 0))

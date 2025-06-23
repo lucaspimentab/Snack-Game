@@ -41,22 +41,25 @@ class Game:
         """
         pygame.init()
         
-        # Configurações da trilha sonora
+        # Inicializa o mixer para sons e configura trilha sonora de fundo
         pygame.mixer.init()
         pygame.mixer.music.load(str(SOUNDTRACK_PATH))
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
 
-        # Carrega os efeitos sonoros
+        # Carrega efeitos sonoros usados no jogo
         self.som_comer_normal = pygame.mixer.Sound(str(BEEP_SOUND_PATH))
         self.som_velocidade = pygame.mixer.Sound(str(SPEED_SOUND_PATH))
         self.som_impacto = pygame.mixer.Sound(str(IMPACT_SOUND_PATH))
 
+        # Configura tamanho da tela e fontes
         self.largura, self.altura = 520, 450
         self.tela = pygame.display.set_mode((self.largura, self.altura))
-        pygame.display.set_caption("Snake Game - Executável")
+        pygame.display.set_caption("Snack Game - Executável")
         self.clock = pygame.time.Clock()
         self.fonte = pygame.font.SysFont(None, 36)
+
+        # Obtém nome do jogador passado por argumento na execução
         self.jogador = sys.argv[1] if len(sys.argv) > 1 else "Jogador"
         self.score = 0
         self.pausado = False
@@ -83,23 +86,29 @@ class Game:
 
         self.tela.fill(Cor.rgb(Cor.VERDE_CLARO))
 
-        texto1 = self.fonte.render(f"Game Over, {self.jogador}!", True, Cor.rgb(Cor.VERDE_ESCURO))
-        rect1 = texto1.get_rect(center=(self.largura // 2, self.altura // 2 - 30))
+        texto1 = self.fonte.render(
+            f"Game Over, {self.jogador}!", True, Cor.rgb(Cor.VERDE_ESCURO)
+        )
+        rect1 = texto1.get_rect(center = (self.largura // 2, self.altura // 2 - 30))
         self.tela.blit(texto1, rect1)
 
-        texto2 = self.fonte.render("Pressione ENTER para jogar novamente", True, Cor.rgb(Cor.CINZA_TEXTO))
-        rect2 = texto2.get_rect(center=(self.largura // 2, self.altura // 2 + 30))
+        texto2 = self.fonte.render(
+            "Pressione ENTER para jogar novamente", True, Cor.rgb(Cor.CINZA_TEXTO)
+        )
+        rect2 = texto2.get_rect(center = (self.largura // 2, self.altura // 2 + 30))
         self.tela.blit(texto2, rect2)
 
         pygame.display.flip()
 
-        # Espera o jogador apertar ENTER ou ESC
+        # Espera o jogador apertar ENTER para reiniciar ou ESC para sair
         esperando = True
         while esperando:
             for evento in pygame.event.get():
+
                 if evento.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+
                 if evento.type == pygame.KEYDOWN:
                     if evento.key == pygame.K_RETURN:
                         esperando = False
@@ -115,21 +124,24 @@ class Game:
             logger.warning(f"Arquivo de usuarios não encontrado em {DB_PATH}")
             return
 
-        with open(DB_PATH, "r", encoding="utf-8") as f:
+        with open(DB_PATH, "r", encoding = "utf-8") as f:
             usuarios_dict = json.load(f)
 
         if self.jogador not in usuarios_dict:
-            logger.warning(f"Usuario '{self.jogador}' nao encontrado para salvar score.")
+            logger.warning(
+                f"Usuario '{self.jogador}' nao encontrado para salvar score."
+            )
             return
 
         usuario = Usuario.from_dict(self.jogador, usuarios_dict[self.jogador])
         logger.debug(f"Score anterior de {self.jogador}: {usuario.score}")
 
+        # Atualiza o score do usuário no dicionário e salva no arquivo
         usuario.score = self.score
         usuarios_dict[self.jogador] = usuario.to_dict()
 
-        with open(DB_PATH, "w", encoding="utf-8") as f:
-            json.dump(usuarios_dict, f, indent=2)
+        with open(DB_PATH, "w", encoding = "utf-8") as f:
+            json.dump(usuarios_dict, f, indent = 2)
 
         logger.info(f"Score de {self.jogador} atualizado para {self.score}")
 
@@ -167,6 +179,7 @@ class Game:
 
         while True:
             self.clock.tick(self.velocidade)
+            
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     logger.info("Jogo encerrado pelo botao de fechar")
@@ -194,6 +207,7 @@ class Game:
                     logger.debug(f"Direcao alterada: {evento.key}")
 
             if self.pausado:
+                # Tela de pausa com texto e elementos atuais do jogo
                 self.tela.fill(Cor.rgb(Cor.VERDE_CLARO))
                 self.snake.desenhar(self.tela)
                 self.apple.desenhar(self.tela)
@@ -208,22 +222,24 @@ class Game:
                 pygame.display.update()
                 continue
 
+            # Movimento da cobra
             self.snake.mover()
-            # Se efeito de velocidade estiver ativo e já passaram 5 segundos,
-            # restaura a velocidade normal
+
+            # Verifica se efeito de velocidade expirou (5 segundos)
             if self.velocidade > 10 and pygame.time.get_ticks() - self.tempo_velocidade > 5000:
                 self.velocidade = 10
 
+            # Verifica colisão da cobra com a maçã
             if self.snake.colidiu_com(self.apple.get_pos()):
                 
-                # Maçã azul de velocidade
+                # Se maçã especial, aumenta velocidade e toca som
                 if self.apple.tipo == "velocidade":
                     self.som_velocidade.play()
                     self.velocidade = 20
                     self.tempo_velocidade = pygame.time.get_ticks()
                 
-                # Maçã normal
                 else:
+                    # Maçã normal toca som padrão
                     self.som_comer_normal.play()
 
                 self.snake.crescer()
@@ -236,12 +252,14 @@ class Game:
 
                 logger.info(f"{self.jogador} pegou uma maca '{tipo}'! Score: {self.score}")
 
+            # Detecta colisão com parede ou consigo mesma
             if self.snake.bateu_na_parede(self.largura, self.altura) or self.snake.colidiu_consigo():
                 self.som_impacto.play()
                 logger.info("Colisao detectada!")
                 self.mostrar_game_over()
                 self.reset()
 
+            # Desenha tudo na tela
             self.tela.fill(Cor.rgb(Cor.VERDE_CLARO))
             self.snake.desenhar(self.tela)
             self.apple.desenhar(self.tela)
@@ -253,5 +271,5 @@ if __name__ == "__main__":
     try:
         Game().run()
     except Exception as e:
-        logger.exception("Erro ao iniciar o jogo:")
+        logger.exception(f"Erro ao iniciar o jogo: {e}")
         input("Pressione Enter para sair...")
