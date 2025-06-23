@@ -17,7 +17,7 @@ class Apple:
         y (int): Posição Y atual da maçã.
     """
 
-    def __init__(self, largura, altura):
+    def __init__(self, largura, altura, tipo = "normal"):
         """
         Inicializa uma nova instância de Apple.
 
@@ -27,9 +27,10 @@ class Apple:
         """
         self.tamanho = 10
         self.largura = largura
-        self.altura = altura
-        self.x = 0
-        self.y = 0
+        self.altura  = altura
+        self.x       = 0
+        self.y       = 0
+        self.tipo    = tipo
 
     def gerar_nova_posicao(self, corpo_cobra):
         """
@@ -57,13 +58,15 @@ class Apple:
 
     def desenhar(self, tela):
         """
-        Desenha a maçã na tela.
+        Desenha a maçã na tela, com a cor de acordo com o tipo da maçã.
+        Pode ser vermelha (normal) ou azul (aumenta velocidade).
 
         Args:
             tela (pygame.Surface): Superfície onde a maçã será desenhada.
         """
+        cor_da_maca = Cor.rgb(Cor.VERMELHO) if self.tipo == "normal" else Cor.rgb(Cor.AZUL)
         pygame.draw.rect(
             tela, 
-            Cor.rgb(Cor.VERMELHO), 
+            cor_da_maca, 
             (self.x, self.y, self.tamanho, self.tamanho)
         )

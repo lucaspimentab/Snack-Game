@@ -13,6 +13,7 @@ class Cores:
     BORDAS_INPUT      = "#a5d6a7"
 
     # Cores auxiliares
+    AZUL         = "#333ecc"
     VERMELHO     = "#bd0000"
     BRANCO       = "#ffffff"
     CINZA_TEXTO  = "#4f4f4f"
