@@ -1,15 +1,11 @@
 from pathlib import Path
 
-# Caminho absoluto da raiz do projeto, a partir de onde o script foi iniciado
-BASE_DIR = Path(__file__).resolve()
+# Caminho absoluto até a raiz (assumindo que config.py está em utils/)
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Sobe diretórios até encontrar a raiz do projeto
-while BASE_DIR.name != "Snack-Game" and BASE_DIR != BASE_DIR.parent:
-    BASE_DIR = BASE_DIR.parent
-
-# Caminhos úteis
+ASSETS_DIR = BASE_DIR / "assets"
 DB_PATH           = BASE_DIR / "database" / "usuarios.json"
-SOUNDTRACK_PATH   = BASE_DIR / "assets" / "soundtrack.mp3"
-BEEP_SOUND_PATH   = BASE_DIR / "assets" / "beep.mp3"
-SPEED_SOUND_PATH  = BASE_DIR / "assets" / "speed.mp3"
-IMPACT_SOUND_PATH = BASE_DIR / "assets" / "impact.mp3"
+SOUNDTRACK_PATH   = ASSETS_DIR / "soundtrack.mp3"
+BEEP_SOUND_PATH   = ASSETS_DIR / "beep.mp3"
+SPEED_SOUND_PATH  = ASSETS_DIR / "speed.mp3"
+IMPACT_SOUND_PATH = ASSETS_DIR / "impact.mp3"
